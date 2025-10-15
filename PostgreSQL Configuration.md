@@ -238,6 +238,7 @@ WHERE name IN (
 SELECT name, setting, unit, source, pending_restart
 FROM pg_settings 
 WHERE name = 'shared_buffers';
+<img width="770" height="182" alt="image" src="https://github.com/user-attachments/assets/d7a2fbca-9326-4ba2-8967-3a8b64dd1a3f" />
 
 ### ผลการทดลอง
 ```

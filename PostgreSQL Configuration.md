@@ -261,11 +261,13 @@ WHERE name = 'shared_buffers';
 docker exec -it -u postgres postgres-config pg_ctl restart -D /var/lib/postgresql/data -m fast
 
 ### ผลการทดลอง
-```
+<img width="429" height="138" alt="image" src="https://github.com/user-attachments/assets/ff1025b8-eeee-4da3-b17e-657cbdaca0e5" />
+
 รูปผลการเปลี่ยนแปลงค่า pending_restart
 รูปหลังจาก restart postgres
 
-```
+<img width="739" height="166" alt="image" src="https://github.com/user-attachments/assets/57451c83-7f27-4646-80a6-bf4a5740133c" />
+
 
 #### 2.2 ปรับแต่ง Work Memory (ไม่ต้อง restart)
 ```sql
@@ -286,7 +288,8 @@ FROM pg_settings
 WHERE name = 'work_mem';
 ```
 ### ผลการทดลอง
-```
+<img width="743" height="305" alt="image" src="https://github.com/user-attachments/assets/07674b85-fb7f-4e3e-b562-1a82f022f430" />
+
 รูปผลการเปลี่ยนแปลงค่า work_mem
 ```
 
@@ -303,7 +306,8 @@ SELECT pg_reload_conf();
 SHOW maintenance_work_mem;
 ```
 ### ผลการทดลอง
-```
+<img width="439" height="121" alt="image" src="https://github.com/user-attachments/assets/3e5d2129-1048-4ef3-87b1-de0e589d0421" />
+
 รูปผลการเปลี่ยนแปลงค่า maintenance_work_mem
 ```
 
@@ -326,9 +330,11 @@ docker restart postgres-config
 docker exec -it postgres-config psql -U postgres
 -- ตรวจสอบ
 SHOW wal_buffers;
-```
+<img width="426" height="130" alt="image" src="https://github.com/user-attachments/assets/1153bbc8-33c1-4c8c-9d6d-b53860b64748" />
+
 ### ผลการทดลอง
-```
+
+
 รูปผลการเปลี่ยนแปลงค่า wal_buffers
 ```
 
@@ -345,7 +351,7 @@ SELECT pg_reload_conf();
 SHOW effective_cache_size;
 ```
 ### ผลการทดลอง
-```
+<img width="661" height="424" alt="image" src="https://github.com/user-attachments/assets/2599fec4-0a37-4232-806e-e996e7a73f32" />
 รูปผลการเปลี่ยนแปลงค่า effective_cache_size
 ```
 
@@ -374,7 +380,8 @@ WHERE name IN (
 ORDER BY name;
 ```
 ### ผลการทดลอง
-```
+<img width="1385" height="214" alt="image" src="https://github.com/user-attachments/assets/ac474ed8-267c-449e-9ddb-5951dbada652" />
+
 รูปผลการลัพธ์การตั้งค่า
 ```
 

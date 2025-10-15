@@ -425,11 +425,15 @@ ORDER BY data
 LIMIT 1000;
 ```
 ### ผลการทดลอง
-```
-1. คำสั่ง EXPLAIN(ANALYZE,BUFFERS) คืออะไร 
+<img width="1533" height="448" alt="image" src="https://github.com/user-attachments/assets/e161cdbd-4a4a-4e49-9b40-c4eb7f9fc291" />
+
+1. คำสั่ง EXPLAIN(ANALYZE,BUFFERS) คืออะไร EXPLAIN  ใช้ แสดงแผนการทำงาน (execution plan) ของคำสั่ง SQL ANALYZE → บอกให้ PostgreSQL รัน query จริง ๆ แล้ววัดเวลาและ row ที่อ่าน/ส่งออกจริง BUFFERS  บอกให้ PostgreSQL แสดงข้อมูลการใช้ buffer/page ของ disk และ memory ค้นในตาราง large_table ORDER BY data LIMIT 1000 ใน SQL คือ จำกัดจำนวนแถว (rows) ที่ query ส่งกลับ ไม่ให้เกิน 1000 แถว
 2. รูปผลการรัน
 3. อธิบายผลลัพธ์ที่ได้
-```
+Planning Time: 1.033 ms นี่คือเวลาที่ PostgreSQL ใช้ในการ วางแผน ว่าจะใช้วิธีไหนในการดึงข้อมูลให้มีประสิทธิภาพที่สุด
+Execution Time: 214.258 ms นี่คือเวลาที่ใช้ในการ ทำงานจริง ตามแผนที่วางไว้ จนได้ผลลัพธ์ออกมาครบถ้วน
+
+
 ```sql
 -- ทดสอบ Hash operation
 EXPLAIN (ANALYZE, BUFFERS)
@@ -441,11 +445,15 @@ LIMIT 100;
 ```
 
 ### ผลการทดลอง
-```
+<img width="1567" height="416" alt="image" src="https://github.com/user-attachments/assets/c2d7e785-fa66-4325-86d1-52456236cb87" />
+
 1. รูปผลการรัน
-2. อธิบายผลลัพธ์ที่ได้ 
+2. อธิบายผลลัพธ์ที่ได้ Planning Time: 16.914 ms (เวลาที่ใช้ในการวางแผน)
+Execution Time: 3.186 ms (เวลาที่ใช้ในการทำงานจริง)
+Query นี้ทำงานได้ เร็วและมีประสิทธิภาพสูงมาก เพราะใช้ Index ได้อย่างสมบูรณ์ และข้อมูลทั้งหมดอยู่ในหน่วยความจำแล้ว
 3. การสแกนเป็นแบบใด เกิดจากเหตุผลใด
-```
+ประเภทการสแกน: การสแกนเป็นแบบ Index-Only Scan
+เหตุผลที่ใช้: PostgreSQL เลือกใช้วิธีนี้เพราะเป็นวิธีที่ เร็วที่สุด สำหรับ Query นี้ ด้วยเหตุผลที่ว่าข้อมูลที่ต้องการทั้งหมด (คือคอลัมน์ number) มีอยู่ครบถ้วนภายในตัว Index อยู่แล้ว
 #### 5.3 การทดสอบ Maintenance Work Memory
 ```sql
 -- ทดสอบ CREATE INDEX (จะใช้ maintenance_work_mem)
@@ -460,10 +468,19 @@ DELETE FROM large_table WHERE id % 10 = 0;
 VACUUM (ANALYZE, VERBOSE) large_table;
 ```
 ### ผลการทดลอง
-```
+<img width="1373" height="444" alt="image" src="https://github.com/user-attachments/assets/67e4a51f-c269-402f-9b82-6714987e7d70" />
+
 1. รูปผลการทดลอง จากคำสั่ง VACUUM (ANALYZE, VERBOSE) large_table;
 2. อธิบายผลลัพธ์ที่ได้
-```
+Planning Time: 1.033 ms
+
+คือเวลาที่ PostgreSQL ใช้ในการ วิเคราะห์และวางแผน ว่าจะใช้วิธีไหนในการดึงข้อมูลให้เร็วที่สุด
+
+Execution Time: 214.258 ms
+
+คือเวลาที่ใช้ในการ ทำงานตามแผน ที่วางไว้จริงๆ ตั้งแต่เริ่มจนได้ผลลัพธ์ครบถ้วน
+
+เวลารวมทั้งหมด: 217.702 ms (เวลาวางแผน + เวลาทำงาน)
 ### Step 6: การติดตาม Memory Usage
 
 #### 6.1 สร้างฟังก์ชันติดตาม Memory
@@ -506,7 +523,8 @@ FROM get_memory_usage();
 ### ผลการทดลอง
 ```
 รูปผลการทดลอง
-```
+  <img width="1164" height="426" alt="image" src="https://github.com/user-attachments/assets/7c899d4f-b413-498d-9c07-8ccd3b953616" />
+
 
 #### 6.2 การติดตาม Buffer Hit Ratio
 ```sql
@@ -525,10 +543,13 @@ WHERE heap_blks_read + heap_blks_hit > 0
 ORDER BY heap_blks_read + heap_blks_hit DESC;
 ```
 ### ผลการทดลอง
-```
+<img width="1205" height="332" alt="image" src="https://github.com/user-attachments/assets/2855c3b3-71bc-4c2b-8ee1-87d4c9d33ce3" />
+
 1. รูปผลการทดลอง
 2. อธิบายผลลัพธ์ที่ได้
-```
+Query นี้มีวัตถุประสงค์เพื่อ ตรวจสอบประสิทธิภาพของ Cache (หน่วยความจำ) ของ PostgreSQL โดยคำนวณ "อัตราส่วนการอ่านข้อมูลจาก Cache" (Cache Hit Ratio) ของแต่ละตารางในฐานข้อมูล
+
+อัตราส่วนนี้บอกเราว่า มีกี่เปอร์เซ็นต์ที่ PostgreSQL สามารถหาข้อมูลที่ต้องการเจอใน Cache (RAM) ที่รวดเร็ว เทียบกับการต้องไปอ่านจากดิสก์ (Disk) ที่ช้ากว่ามาก ยิ่งค่านี้สูง (ใกล้ 100%) ยิ่งดี หมายความว่าฐานข้อมูลทำงานได้เร็วและมีประสิทธิภาพ
 #### 6.3 ดู Buffer Hit Ratio ทั้งระบบ
 ```sql
 SELECT datname,
